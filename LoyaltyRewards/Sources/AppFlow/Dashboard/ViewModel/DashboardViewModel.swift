@@ -7,7 +7,12 @@ import Foundation
 import RewardsAPI
 import UIKit
 
-final class DashboardViewModel {
+import Combine
+import Foundation
+import RewardsAPI
+import UIKit
+
+final class DashboardViewModel: DashboardViewModelProtocol {
     @Published private(set) var rewardsPublisher: [RewardEntity] = []
     @Published private(set) var pointsPublisher: UInt = 0
     @Published private(set) var customerNamePublisher: String = "Guest"
@@ -17,7 +22,9 @@ final class DashboardViewModel {
     @Published private(set) var updatingRewardIDsPublisher: Set<String> = []
 
     private var cancellables = Set<AnyCancellable>()
+    private var fetchIdentifiersCancellable: AnyCancellable?
     private var fetchPointsCancellable: AnyCancellable?
+    
     private let api: RewardsAPI.API
     private let imageCache = NSCache<NSURL, UIImage>()
 
@@ -26,16 +33,12 @@ final class DashboardViewModel {
     }
 
     private func fetchActiveRewardIdentifiers() {
-        api.getActiveRewardIdentifiers()
-            .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.handleError(error)
-                    print("Failed to fetch active reward identifiers: \(error.localizedDescription)")
-                }
-            } receiveValue: { [weak self] identifiers in
+        fetchIdentifiersCancellable?.cancel()
+        fetchIdentifiersCancellable = api.getActiveRewardIdentifiers()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] identifiers in
                 self?.activeRewardIdentifiersPublisher = identifiers
-            }
-            .store(in: &cancellables)
+            })
     }
     
     private func fetchPoints() {
@@ -48,25 +51,9 @@ final class DashboardViewModel {
     }
 
     private func handleError(_ error: Error) {
-        if let httpError = error as? HttpError {
-            self.errorMessagePublisher = switch httpError {
-            case .badRequest:
-                "Bad request. Please try again."
-            case .resourceNotFound:
-                "Could not find the requested resource."
-            case .serverUnavailable:
-                "Server is currently unavailable. Please try again later."
-            default:
-                "An unexpected error occurred: \(error.localizedDescription)"
-            }
-        } else {
-            self.errorMessagePublisher = "An unexpected error occurred: \(error.localizedDescription)"
-        }
+        self.errorMessagePublisher = ErrorMessageFactory.message(for: error)
     }
-}
-
-// MARK: - DashboardViewModelProtocol
-extension DashboardViewModel: DashboardViewModelProtocol {
+    
     var customerName: AnyPublisher<String, Never> {
         $customerNamePublisher.eraseToAnyPublisher()
     }
@@ -99,24 +86,25 @@ extension DashboardViewModel: DashboardViewModelProtocol {
         isLoadingPublisher = true
         errorMessagePublisher = nil
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             api.loadRewards(),
             api.loadAvailablePoints(),
-            api.loadCustomer()
+            api.loadCustomer(),
+            api.getActiveRewardIdentifiers()
         )
+        .receive(on: DispatchQueue.main)
         .sink { [weak self] completion in
             self?.isLoadingPublisher = false
             if case .failure(let error) = completion {
                 self?.handleError(error)
             }
-        } receiveValue: { [weak self] (rewards, points, customer) in
+        } receiveValue: { [weak self] (rewards, points, customer, activeIDs) in
             self?.rewardsPublisher = rewards
             self?.pointsPublisher = points
             self?.customerNamePublisher = customer.name
+            self?.activeRewardIdentifiersPublisher = activeIDs
         }
         .store(in: &cancellables)
-
-        fetchActiveRewardIdentifiers()
     }
 
     func loadImage(for reward: RewardEntity) -> AnyPublisher<UIImage?, Never> {

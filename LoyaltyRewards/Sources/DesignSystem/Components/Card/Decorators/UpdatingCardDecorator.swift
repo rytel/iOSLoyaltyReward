@@ -7,28 +7,24 @@ import UIKit
 
 struct UpdatingCardDecorator {
     static func decorate(_ view: CardView) {
-        view.backgroundColor = AppColor.cardUnlockedBackground
-        view.imageOverlayColor = AppColor.cardUnlockedImageOverlay
-
-        view.titleFont = .applicationFont(ofSize: .m, trait: DefaultFontTrait.bold)
-        view.titleColor = AppColor.cardUnlockedTitle
-
-        hideButtonAndShowSpinner(on: view)
+        UnlockedCardDecorator.decorate(view)
+        addSpinnerToButton(view.button)
     }
 
-    private static func hideButtonAndShowSpinner(on view: CardView) {
-        view.button.isHidden = true
-        
+    private static func addSpinnerToButton(_ button: Button) {
+        button.text = ""
+        button.isEnabled = false
+
         let activityIndicator = UIActivityIndicatorView(style: .medium)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(activityIndicator)
-
+        button.addSubview(activityIndicator)
+        
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: view.button.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.button.centerYAnchor)
+            activityIndicator.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: button.centerYAnchor)
         ])
-
+        
         activityIndicator.startAnimating()
     }
 }
