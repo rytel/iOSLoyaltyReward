@@ -4,15 +4,20 @@
 
 import Combine
 import UIKit
+import OSLog
 import RewardsAPI
 
 final class DashboardViewController: UIViewController {
     private let dashboardView: DashboardView
     private let viewModel: DashboardViewModelProtocol
 
+    weak var delegate: DashboardViewControllerDelegate?
+
     private var cancellables: Set<AnyCancellable> = []
     private var imageLoadingCancellables = Set<AnyCancellable>()
     private var cardData: [CardCarouselView.CardData] = []
+    
+    private let logger = Logger(subsystem: "com.yourapp.RewardsApp", category: "DashboardViewController")
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -33,51 +38,54 @@ final class DashboardViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        logger.info("DashboardViewController did load.")
+        
         setupNavigationBar()
         setupDelegatesAndTargets()
         setupBindings()
+        
+        logger.info("Fetching initial data...")
         viewModel.fetchAllData()
     }
-}
-
-// MARK: - Setup & Bindings
-private extension DashboardViewController {
-    func setupNavigationBar() {
+    
+    private func setupNavigationBar() {
         navigationItem.title = Localized.dashboardTitle
     }
     
-    func setupDelegatesAndTargets() {
+    private func setupDelegatesAndTargets() {
         dashboardView.cardCarousel.delegate = self
         dashboardView.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
     }
 
-    func setupBindings() {
+    private func setupBindings() {
         viewModel.customerName
             .receive(on: DispatchQueue.main)
             .map { Localized.dashboardWelcomeTitle($0) }
             .assign(to: \.title, on: dashboardView.sectionTitle)
             .store(in: &cancellables)
-
+            
         viewModel.points
             .receive(on: DispatchQueue.main)
             .map { "\($0)" }
             .assign(to: \.points, on: dashboardView.counterLoop)
             .store(in: &cancellables)
+
+        viewModel.error
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                self?.logger.error("Error received, passing to delegate: \(error.localizedDescription)")
+                self?.delegate?.dashboardViewController(didFailWith: error)
+            }
+            .store(in: &cancellables)
             
         viewModel.isLoading
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
+                self?.logger.debug("isLoading state changed: \(isLoading)")
                 if !isLoading {
                     self?.dashboardView.refreshControl.endRefreshing()
                 }
-            }
-            .store(in: &cancellables)
-            
-        viewModel.errorMessage
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { [weak self] message in
-                self?.presentErrorAlert(with: message)
             }
             .store(in: &cancellables)
             
@@ -89,15 +97,14 @@ private extension DashboardViewController {
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] (rewards, activeIDs, userPoints, updatingIDs) in
+            self?.logger.info("Received new data snapshot. Updating UI.")
             self?.updateCarousel(with: rewards, activeIDs: activeIDs, userPoints: userPoints, updatingIDs: updatingIDs)
         }
         .store(in: &cancellables)
     }
-}
-
-// MARK: - Private Methods
-private extension DashboardViewController {
-    @objc func refreshData() {
+    
+    @objc private func refreshData() {
+        logger.info("User initiated pull-to-refresh.")
         viewModel.fetchAllData()
     }
     
@@ -107,25 +114,17 @@ private extension DashboardViewController {
 
         cardData = rewards.map { reward in
             let state: CardState
-            
-            // Sprawdzamy najpierw, czy karta jest w stanie ładowania
             if updatingIDs.contains(reward.id) {
                 state = .updating
             } else {
-                // Jeśli nie, używamy dotychczasowej logiki
                 let isActive = activeIDs.contains(reward.id)
                 let hasEnoughPoints = userPoints >= reward.pointsCost
-                
-                if isActive {
-                    state = .active
-                } else if hasEnoughPoints {
-                    state = .unlocked
-                } else {
-                    state = .locked
-                }
+                if isActive { state = .active }
+                else if hasEnoughPoints { state = .unlocked }
+                else { state = .locked }
             }
-            
-            return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: UInt(reward.pointsCost))
+            let points = UInt(max(0, reward.pointsCost))
+            return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: points)
         }
         dashboardView.cardCarousel.cards = cardData
 
@@ -134,23 +133,20 @@ private extension DashboardViewController {
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] image in
                     guard let self, self.cardData.indices.contains(index) else { return }
+                    if image != nil {
+                        self.logger.debug("Image loaded for reward: \(reward.name)")
+                    }
                     self.cardData[index].image = image
                     self.dashboardView.cardCarousel.cards = self.cardData
                 }
                 .store(in: &imageLoadingCancellables)
         }
     }
-    
-    func presentErrorAlert(with message: String) {
-        let alert = UIAlertController(title: Localized.errorAlertTitle, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: Localized.errorAlertCloseButtonTitle, style: .default))
-        present(alert, animated: true)
-    }
 }
 
-// MARK: - CardCarouselViewDelegate
 extension DashboardViewController: CardCarouselViewDelegate {
     func cardCarouselView(_ carouselView: CardCarouselView, didTapButtonInCardWith data: CardCarouselView.CardData) {
+        logger.info("User tapped button for reward ID: \(data.id) with state: \(data.state)")
         if data.state == .active {
             viewModel.deactivateReward(with: data.id)
         } else if data.state == .unlocked {

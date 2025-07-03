@@ -11,16 +11,16 @@ struct ErrorMessageFactory {
         if let httpError = error as? HttpError {
             switch httpError {
             case .badRequest:
-                return "Błędne żądanie. Spróbuj ponownie."
+                return "Bad request. Please try again."
             case .resourceNotFound:
-                return "Nie znaleziono zasobu."
+                return "Resource not found."
             case .serverUnavailable:
-                return "Serwer jest niedostępny. Spróbuj później."
+                return "Server is unavailable. Please try again later."
             default:
-                return "Wystąpił nieoczekiwany błąd: \(error.localizedDescription)"
+                return "An unexpected error occurred: \(error.localizedDescription)"
             }
         } else {
-            return "Wystąpił nieoczekiwany błąd: \(error.localizedDescription)"
+            return "An unexpected error occurred: \(error.localizedDescription)"
         }
     }
 }

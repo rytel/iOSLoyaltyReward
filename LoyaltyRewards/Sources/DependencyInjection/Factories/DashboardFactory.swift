@@ -3,11 +3,14 @@
 //
 
 import UIKit
+import RewardsAPI
 
 final class DashboardFactory: DashboardProducing {
     func makeDashboardViewController() -> UIViewController {
         let view = DashboardViewFactory().make()
-        let viewModel = DashboardViewModel()
+        
+        let api = RewardsAPI.API.shared
+        let viewModel = DashboardViewModel(api: api)
         
         return DashboardViewController(
             view: view,
@@ -18,7 +21,7 @@ final class DashboardFactory: DashboardProducing {
     func makeErrorViewController(error: Error) -> UIViewController {
         let alertController = UIAlertController(
             title: Localized.errorAlertTitle,
-            message: error.localizedDescription,
+            message: ErrorMessageFactory.message(for: error),
             preferredStyle: .alert
         )
         

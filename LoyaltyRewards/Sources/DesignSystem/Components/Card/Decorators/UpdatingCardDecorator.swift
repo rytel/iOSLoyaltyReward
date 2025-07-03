@@ -8,21 +8,21 @@ import UIKit
 struct UpdatingCardDecorator {
     static func decorate(_ view: CardView) {
         UnlockedCardDecorator.decorate(view)
-        addSpinnerToButton(view.button)
+        view.button.isEnabled = false
+        addSpinnerToImageView(on: view)
     }
 
-    private static func addSpinnerToButton(_ button: Button) {
-        button.text = ""
-        button.isEnabled = false
-
-        let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private static func addSpinnerToImageView(on view: CardView) {
+        let activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.color = .white
         
-        button.addSubview(activityIndicator)
+        let imageView = view.imageView
+        imageView.addSubview(activityIndicator)
         
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: button.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+            activityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
         ])
         
         activityIndicator.startAnimating()
