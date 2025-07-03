@@ -12,6 +12,7 @@ final class DashboardView: UIView {
     let sectionTitle = SectionTitleView()
     let counterLoop = CounterLoop()
     let bannerCode = BannerCodeView()
+    let cardCarousel = CardCarouselView()
     let refreshControl = UIRefreshControl()
 
     required init?(coder: NSCoder) {
@@ -35,6 +36,7 @@ extension DashboardView {
         prepareSectionTitle()
         prepareCounterLoop()
         prepareBannerCode()
+        prepareCardCarousel()
     }
 
     private func constructHierarchy() {
@@ -45,6 +47,7 @@ extension DashboardView {
         mainStackView.addArrangedSubview(sectionTitle)
         mainStackView.addArrangedSubview(counterLoop)
         mainStackView.addArrangedSubview(bannerCode)
+        mainStackView.addArrangedSubview(cardCarousel)
     }
 
     private func prepareBackgroundGradientView() {
@@ -95,5 +98,8 @@ extension DashboardView {
 
     private func prepareBannerCode() {
         counterLoop.translatesAutoresizingMaskIntoConstraints = false
+    }
+    private func prepareCardCarousel() {
+        cardCarousel.translatesAutoresizingMaskIntoConstraints = false
     }
 }

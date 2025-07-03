@@ -1,7 +1,15 @@
-// MARK: - View Implementation
+//
+// Copyright © 2022 Future Mind. All rights reserved.
+//
+
+import UIKit
+
+protocol CardCarouselViewDelegate: AnyObject {
+    func cardCarouselView(_ carouselView: CardCarouselView, didTapButtonInCardWith data: CardCarouselView.CardData)
+    func cardCarouselView(_ carouselView: CardCarouselView, didSelectCardWith data: CardCarouselView.CardData)
+}
+
 final class CardCarouselView: UIView {
-    
-    // A simple data structure to decouple the view from a specific business model.
     struct CardData {
         let id: String
         let title: String
@@ -15,37 +23,28 @@ final class CardCarouselView: UIView {
         static let minimumLineSpacing: CGFloat = 16
     }
 
-    // MARK: - Private Properties
     private let collectionView: UICollectionView
-    private var cards: [CardData] = []
-    
+    private var cards: [CardData] {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     weak var delegate: CardCarouselViewDelegate?
 
-    // MARK: - Initializers
     init() {
         let layout = UICollectionViewFlowLayout()
+        self.cards = []
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         super.init(frame: .zero)
-        
+
         setupView()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Public Configuration
-    func configure(with cards: [CardData]) {
-        self.cards = cards
-        collectionView.reloadData()
-        // Scroll to the beginning when new data is set.
-        if !cards.isEmpty {
-            collectionView.setContentOffset(.zero, animated: false)
-        }
-    }
 }
 
-// MARK: - Setup Methods
 private extension CardCarouselView {
     func setupView() {
         constructHierarchy()
@@ -133,9 +132,7 @@ private final class CardCell: UICollectionViewCell {
     func configure(with data: CardCarouselView.CardData) {
         cardView.title = data.title
         cardView.image = data.image
-        cardView.button.setTitle(data.buttonTitle, for: .normal)
-        cardView.titleColor = .darkText // Example styling
-        cardView.backgroundColor = .white // Example styling
+        cardView.button.text = data.buttonTitle
     }
     
     private func setupCell() {

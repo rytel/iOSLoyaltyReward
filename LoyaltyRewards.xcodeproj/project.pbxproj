@@ -63,6 +63,7 @@
 		9690554827FD6FB7000F5DFC /* RefreshControlDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9690554727FD6FB7000F5DFC /* RefreshControlDecorator.swift */; };
 		9690555B27FF20BB000F5DFC /* NavigationBarDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9690555A27FF20BB000F5DFC /* NavigationBarDecorator.swift */; };
 		96BDB43A27DF7295005C045B /* UIControl.State+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BDB43927DF7295005C045B /* UIControl.State+Hashable.swift */; };
+		B04BAB672E16BE2800D3D691 /* CardCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BAB662E16BE2800D3D691 /* CardCarouselView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +151,7 @@
 		9690555A27FF20BB000F5DFC /* NavigationBarDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarDecorator.swift; sourceTree = "<group>"; };
 		96BDB43927DF7295005C045B /* UIControl.State+Hashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl.State+Hashable.swift"; sourceTree = "<group>"; };
 		A9043AEA6AF9ED839FE80222 /* Pods-LoyaltyRewards.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoyaltyRewards.release.xcconfig"; path = "Target Support Files/Pods-LoyaltyRewards/Pods-LoyaltyRewards.release.xcconfig"; sourceTree = "<group>"; };
+		B04BAB662E16BE2800D3D691 /* CardCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCarouselView.swift; sourceTree = "<group>"; };
 		F3BC3F16ABD42CDD8BCA8A52 /* Pods-LoyaltyRewards-LoyaltyRewardsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoyaltyRewards-LoyaltyRewardsTests.debug.xcconfig"; path = "Target Support Files/Pods-LoyaltyRewards-LoyaltyRewardsTests/Pods-LoyaltyRewards-LoyaltyRewardsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		FC3D6C4D159C7A48CA10899C /* Pods-LoyaltyRewards-LoyaltyRewardsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoyaltyRewards-LoyaltyRewardsTests.release.xcconfig"; path = "Target Support Files/Pods-LoyaltyRewards-LoyaltyRewardsTests/Pods-LoyaltyRewards-LoyaltyRewardsTests.release.xcconfig"; sourceTree = "<group>"; };
 		FD2AF7B72E57B20108F2D95A /* Pods_LoyaltyRewards_LoyaltyRewardsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LoyaltyRewards_LoyaltyRewardsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -360,6 +362,7 @@
 		962F403E27DBAD1300AAC3AD /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B04BAB632E16BD1400D3D691 /* RewardList */,
 				965048B427ECC4FC0030AFB1 /* BannerCode */,
 				965048C327EE125C0030AFB1 /* Card */,
 				962F403F27DBAD2B00AAC3AD /* SectionTitle */,
@@ -548,6 +551,14 @@
 				FC3D6C4D159C7A48CA10899C /* Pods-LoyaltyRewards-LoyaltyRewardsTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		B04BAB632E16BD1400D3D691 /* RewardList */ = {
+			isa = PBXGroup;
+			children = (
+				B04BAB662E16BE2800D3D691 /* CardCarouselView.swift */,
+			);
+			path = RewardList;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -749,6 +760,7 @@
 				962F401D27DB82F900AAC3AD /* DashboardView.swift in Sources */,
 				9690554827FD6FB7000F5DFC /* RefreshControlDecorator.swift in Sources */,
 				962F403127DBA73600AAC3AD /* DashboardCoordinator.swift in Sources */,
+				B04BAB672E16BE2800D3D691 /* CardCarouselView.swift in Sources */,
 				962F3FD627DB760400AAC3AD /* AppDelegate.swift in Sources */,
 				962F403827DBA85900AAC3AD /* AppCoordinator.swift in Sources */,
 				965048BC27EDEE660030AFB1 /* GradientView.swift in Sources */,
@@ -935,7 +947,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = E42JNQGQC5;
+				DEVELOPMENT_TEAM = VB5MBN44WH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LoyaltyRewards/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -949,7 +961,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.futuremind.LoyaltyRewards;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rytel.LoyaltyRewards;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -965,7 +977,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = E42JNQGQC5;
+				DEVELOPMENT_TEAM = VB5MBN44WH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LoyaltyRewards/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -979,7 +991,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.futuremind.LoyaltyRewards;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rytel.LoyaltyRewards;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
