@@ -24,7 +24,6 @@ final class DashboardViewModel {
 
     private func fetchActiveRewardIdentifiers() {
         api.getActiveRewardIdentifiers()
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.handleError(error)
@@ -89,7 +88,6 @@ extension DashboardViewModel: DashboardViewModelProtocol {
             api.loadAvailablePoints(),
             api.loadCustomer()
         )
-        .receive(on: DispatchQueue.main)
         .sink { [weak self] completion in
             self?.isLoadingPublisher = false
             if case .failure(let error) = completion {
@@ -120,7 +118,6 @@ extension DashboardViewModel: DashboardViewModelProtocol {
         errorMessagePublisher = nil
 
         api.activateReward(with: id)
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoadingPublisher = false
                 if case .failure(let error) = completion {
@@ -137,7 +134,6 @@ extension DashboardViewModel: DashboardViewModelProtocol {
         errorMessagePublisher = nil
 
         api.deactivateReward(with: id)
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.isLoadingPublisher = false
                 if case .failure(let error) = completion {

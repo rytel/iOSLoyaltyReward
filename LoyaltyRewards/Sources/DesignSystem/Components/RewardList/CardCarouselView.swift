@@ -13,17 +13,19 @@ final class CardCarouselView: UIView {
         var id: String
         let title: String
         var image: UIImage?
-        let buttonTitle: String
+        let state: CardState
+        let pointsCost: UInt
     }
 
     private enum Constants {
         static let itemSize = CGSize(width: 200, height: 286)
         static let sectionInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         static let minimumLineSpacing: CGFloat = 24
+        static let collectionViewHeight: CGFloat = itemSize.height + sectionInsets.top + sectionInsets.bottom
     }
 
     private let collectionView: UICollectionView
-    var cards: [CardData] {
+    var cards: [CardData] = [] {
         didSet {
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
@@ -36,7 +38,6 @@ final class CardCarouselView: UIView {
     init() {
         let layout = UICollectionViewFlowLayout()
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cards = []
         super.init(frame: .zero)
         setupView()
     }
@@ -75,7 +76,8 @@ private extension CardCarouselView {
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             collectionView.topAnchor.constraint(equalTo: topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: Constants.collectionViewHeight)
         ])
     }
 }
@@ -100,48 +102,5 @@ extension CardCarouselView: UICollectionViewDataSource {
         }
         
         return cell
-    }
-}
-
-
-// MARK: - Private CollectionViewCell
-private final class CardCell: UICollectionViewCell {
-    static let reuseIdentifier = "CardCell"
-    
-    private let cardView = CardView()
-    
-    var onButtonTapped: (() -> Void)?
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupCell()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func configure(with data: CardCarouselView.CardData) {
-        cardView.title = data.title
-        cardView.image = data.image
-        cardView.button.text = data.buttonTitle
-    }
-    
-    private func setupCell() {
-        contentView.addSubview(cardView)
-        cardView.translatesAutoresizingMaskIntoConstraints = false
-        
-        cardView.button.addTarget(self, action: #selector(handleButtonTap), for: .touchUpInside)
-        
-        NSLayoutConstraint.activate([
-            cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        ])
-    }
-    
-    @objc private func handleButtonTap() {
-        onButtonTapped?()
     }
 }

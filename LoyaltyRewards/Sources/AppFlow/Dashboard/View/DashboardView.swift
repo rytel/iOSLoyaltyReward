@@ -21,7 +21,6 @@ final class DashboardView: UIView {
 
     init() {
         super.init(frame: .zero)
-
         setupLayout()
     }
 }
@@ -102,5 +101,4 @@ private extension DashboardView {
     func prepareBannerCode() {
         bannerCode.translatesAutoresizingMaskIntoConstraints = false
     }
-    
 }

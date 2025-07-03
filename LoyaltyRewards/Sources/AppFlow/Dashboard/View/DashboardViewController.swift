@@ -11,6 +11,7 @@ final class DashboardViewController: UIViewController {
     private let viewModel: DashboardViewModelProtocol
 
     private var cancellables: Set<AnyCancellable> = []
+    private var imageLoadingCancellables = Set<AnyCancellable>()
     private var cardData: [CardCarouselView.CardData] = []
 
     required init?(coder: NSCoder) {
@@ -32,17 +33,16 @@ final class DashboardViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setupNavigationBar()
         setupDelegatesAndTargets()
         setupBindings()
-        
         viewModel.fetchAllData()
     }
 }
 
-extension DashboardViewController {
-    private func setupNavigationBar() {
+// MARK: - Setup & Bindings
+private extension DashboardViewController {
+    func setupNavigationBar() {
         navigationItem.title = Localized.dashboardTitle
     }
     
@@ -51,7 +51,7 @@ extension DashboardViewController {
         dashboardView.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
     }
 
-    private func setupBindings() {
+    func setupBindings() {
         viewModel.customerName
             .receive(on: DispatchQueue.main)
             .map { Localized.dashboardWelcomeTitle($0) }
@@ -81,10 +81,10 @@ extension DashboardViewController {
             }
             .store(in: &cancellables)
             
-        Publishers.CombineLatest(viewModel.rewards, viewModel.activeRewardIdentifiers)
+        Publishers.CombineLatest3(viewModel.rewards, viewModel.activeRewardIdentifiers, viewModel.points)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (rewards, activeIDs) in
-                self?.updateCarousel(with: rewards, activeIDs: activeIDs)
+            .sink { [weak self] (rewards, activeIDs, userPoints) in
+                self?.updateCarousel(with: rewards, activeIDs: activeIDs, userPoints: userPoints)
             }
             .store(in: &cancellables)
     }
@@ -96,11 +96,24 @@ private extension DashboardViewController {
         viewModel.fetchAllData()
     }
     
-    func updateCarousel(with rewards: [RewardEntity], activeIDs: [String]) {
+    func updateCarousel(with rewards: [RewardEntity], activeIDs: [String], userPoints: UInt) {
+        imageLoadingCancellables.forEach { $0.cancel() }
+        imageLoadingCancellables.removeAll()
+
         cardData = rewards.map { reward in
             let isActive = activeIDs.contains(reward.id)
-            let buttonTitle = String(reward.pointsCost)
-            return .init(id: reward.id, title: reward.name, image: nil, buttonTitle: buttonTitle)
+            let hasEnoughPoints = userPoints >= reward.pointsCost
+
+            let state: CardState
+            if isActive {
+                state = .active
+            } else if hasEnoughPoints {
+                state = .unlocked
+            } else {
+                state = .locked
+            }
+            
+            return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: UInt(reward.pointsCost))
         }
         dashboardView.cardCarousel.cards = cardData
 
@@ -110,9 +123,9 @@ private extension DashboardViewController {
                 .sink { [weak self] image in
                     guard let self, self.cardData.indices.contains(index) else { return }
                     self.cardData[index].image = image
-                    self.dashboardView.cardCarousel.cards = cardData
+                    self.dashboardView.cardCarousel.cards = self.cardData
                 }
-                .store(in: &cancellables)
+                .store(in: &imageLoadingCancellables)
         }
     }
     
@@ -126,7 +139,10 @@ private extension DashboardViewController {
 // MARK: - CardCarouselViewDelegate
 extension DashboardViewController: CardCarouselViewDelegate {
     func cardCarouselView(_ carouselView: CardCarouselView, didTapButtonInCardWith data: CardCarouselView.CardData) {
-        viewModel.isRewardActive(id: data.id) ?
-        viewModel.deactivateReward(with: data.id) : viewModel.activateReward(with: data.id)
+        if data.state == .active {
+            viewModel.deactivateReward(with: data.id)
+        } else if data.state == .unlocked {
+            viewModel.activateReward(with: data.id)
+        }
     }
 }
