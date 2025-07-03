@@ -38,15 +38,15 @@ final class DashboardViewModel {
 
     private func handleError(_ error: Error) {
         if let httpError = error as? HttpError {
-            switch httpError {
+            self.errorMessagePublisher = switch httpError {
             case .badRequest:
-                self.errorMessagePublisher = "Bad request. Please try again."
+                "Bad request. Please try again."
             case .resourceNotFound:
-                self.errorMessagePublisher = "Could not find the requested resource."
+                "Could not find the requested resource."
             case .serverUnavailable:
-                self.errorMessagePublisher = "Server is currently unavailable. Please try again later."
+                "Server is currently unavailable. Please try again later."
             default:
-                self.errorMessagePublisher = "An unexpected error occurred: \(error.localizedDescription)"
+                "An unexpected error occurred: \(error.localizedDescription)"
             }
         } else {
             self.errorMessagePublisher = "An unexpected error occurred: \(error.localizedDescription)"

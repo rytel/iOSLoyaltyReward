@@ -6,37 +6,38 @@ import UIKit
 
 protocol CardCarouselViewDelegate: AnyObject {
     func cardCarouselView(_ carouselView: CardCarouselView, didTapButtonInCardWith data: CardCarouselView.CardData)
-    func cardCarouselView(_ carouselView: CardCarouselView, didSelectCardWith data: CardCarouselView.CardData)
 }
 
 final class CardCarouselView: UIView {
     struct CardData {
-        let id: String
+        var id: String
         let title: String
-        let image: UIImage?
+        var image: UIImage?
         let buttonTitle: String
     }
 
     private enum Constants {
-        static let itemSize = CGSize(width: 150, height: 250)
-        static let sectionInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        static let minimumLineSpacing: CGFloat = 16
+        static let itemSize = CGSize(width: 200, height: 286)
+        static let sectionInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        static let minimumLineSpacing: CGFloat = 24
     }
 
     private let collectionView: UICollectionView
-    private var cards: [CardData] {
+    var cards: [CardData] {
         didSet {
-            collectionView.reloadData()
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
         }
     }
+    
     weak var delegate: CardCarouselViewDelegate?
 
     init() {
         let layout = UICollectionViewFlowLayout()
-        self.cards = []
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cards = []
         super.init(frame: .zero)
-
         setupView()
     }
 
@@ -45,6 +46,7 @@ final class CardCarouselView: UIView {
     }
 }
 
+// MARK: - Setup
 private extension CardCarouselView {
     func setupView() {
         constructHierarchy()
@@ -66,7 +68,6 @@ private extension CardCarouselView {
         collectionView.backgroundColor = .clear
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.dataSource = self
-        collectionView.delegate = self
         collectionView.register(CardCell.self, forCellWithReuseIdentifier: CardCell.reuseIdentifier)
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,21 +94,12 @@ extension CardCarouselView: UICollectionViewDataSource {
         let cardData = cards[indexPath.item]
         cell.configure(with: cardData)
         
-        // Handle button tap via a closure, which then calls the delegate.
         cell.onButtonTapped = { [weak self] in
             guard let self = self else { return }
             self.delegate?.cardCarouselView(self, didTapButtonInCardWith: cardData)
         }
         
         return cell
-    }
-}
-
-// MARK: - UICollectionViewDelegate
-extension CardCarouselView: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cardData = cards[indexPath.item]
-        delegate?.cardCarouselView(self, didSelectCardWith: cardData)
     }
 }
 
