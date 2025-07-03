@@ -6,6 +6,7 @@ enum CardState {
     case active
     case locked
     case unlocked
+    case updating
 }
 
 extension CardState: Equatable {}

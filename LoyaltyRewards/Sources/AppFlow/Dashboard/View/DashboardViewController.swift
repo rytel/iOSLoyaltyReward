@@ -81,12 +81,17 @@ private extension DashboardViewController {
             }
             .store(in: &cancellables)
             
-        Publishers.CombineLatest3(viewModel.rewards, viewModel.activeRewardIdentifiers, viewModel.points)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] (rewards, activeIDs, userPoints) in
-                self?.updateCarousel(with: rewards, activeIDs: activeIDs, userPoints: userPoints)
-            }
-            .store(in: &cancellables)
+        Publishers.CombineLatest4(
+            viewModel.rewards,
+            viewModel.activeRewardIdentifiers,
+            viewModel.points,
+            viewModel.updatingRewardIDs
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] (rewards, activeIDs, userPoints, updatingIDs) in
+            self?.updateCarousel(with: rewards, activeIDs: activeIDs, userPoints: userPoints, updatingIDs: updatingIDs)
+        }
+        .store(in: &cancellables)
     }
 }
 
@@ -96,21 +101,28 @@ private extension DashboardViewController {
         viewModel.fetchAllData()
     }
     
-    func updateCarousel(with rewards: [RewardEntity], activeIDs: [String], userPoints: UInt) {
+    private func updateCarousel(with rewards: [RewardEntity], activeIDs: [String], userPoints: UInt, updatingIDs: Set<String>) {
         imageLoadingCancellables.forEach { $0.cancel() }
         imageLoadingCancellables.removeAll()
 
         cardData = rewards.map { reward in
-            let isActive = activeIDs.contains(reward.id)
-            let hasEnoughPoints = userPoints >= reward.pointsCost
-
             let state: CardState
-            if isActive {
-                state = .active
-            } else if hasEnoughPoints {
-                state = .unlocked
+            
+            // Sprawdzamy najpierw, czy karta jest w stanie ładowania
+            if updatingIDs.contains(reward.id) {
+                state = .updating
             } else {
-                state = .locked
+                // Jeśli nie, używamy dotychczasowej logiki
+                let isActive = activeIDs.contains(reward.id)
+                let hasEnoughPoints = userPoints >= reward.pointsCost
+                
+                if isActive {
+                    state = .active
+                } else if hasEnoughPoints {
+                    state = .unlocked
+                } else {
+                    state = .locked
+                }
             }
             
             return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: UInt(reward.pointsCost))

@@ -13,6 +13,7 @@ protocol DashboardViewModelProtocol: AnyObject {
     var activeRewardIdentifiers: AnyPublisher<[String], Never> { get }
     var isLoading: AnyPublisher<Bool, Never> { get }
     var errorMessage: AnyPublisher<String?, Never> { get }
+    var updatingRewardIDs: AnyPublisher<Set<String>, Never> { get }
 
     func fetchAllData()
     func loadImage(for reward: RewardEntity) -> AnyPublisher<UIImage?, Never>
