@@ -7,6 +7,10 @@ import UIKit
 import OSLog
 import RewardsAPI
 
+protocol DashboardViewControllerDelegate: AnyObject {
+    func dashboardViewController(didFailWith error: Error)
+}
+
 final class DashboardViewController: UIViewController {
     private let dashboardView: DashboardView
     private let viewModel: DashboardViewModelProtocol
@@ -17,7 +21,7 @@ final class DashboardViewController: UIViewController {
     private var imageLoadingCancellables = Set<AnyCancellable>()
     private var cardData: [CardCarouselView.CardData] = []
     
-    private let logger = Logger(subsystem: "com.yourapp.RewardsApp", category: "DashboardViewController")
+    private let logger = Logger(subsystem: "com.rytel.LoyaltyRewards", category: "DashboardViewController")
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

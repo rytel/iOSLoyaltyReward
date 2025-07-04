@@ -9,12 +9,12 @@ import UIKit
 import OSLog
 
 final class DashboardViewModel: DashboardViewModelProtocol {
-    @Published private(set) var rewardsPublisher: [RewardEntity] = []
-    @Published private(set) var pointsPublisher: UInt = 0
     @Published private(set) var customerNamePublisher: String = "Guest"
-    @Published private(set) var activeRewardIdentifiersPublisher: [String] = []
+    @Published private(set) var availablePointsPublisher: UInt = 0
     @Published private(set) var isLoadingPublisher: Bool = false
     @Published private(set) var errorPublisher: Error?
+    @Published private(set) var rewardsPublisher: [RewardEntity] = []
+    @Published private(set) var activeRewardIdentifiersPublisher: [String] = []
     @Published private(set) var updatingRewardIDsPublisher: Set<String> = []
 
     private var cancellables = Set<AnyCancellable>()
@@ -23,7 +23,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
     
     private let api: RewardsAPI.API
     private let imageCache = NSCache<NSURL, UIImage>()
-    private let logger = Logger(subsystem: "com.yourapp.RewardsApp", category: "DashboardViewModel")
+    private let logger = Logger(subsystem: "com.rytel.LoyaltyRewards", category: "DashboardViewModel")
 
     private let networkRetryCount = 4
 
@@ -63,7 +63,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
                 }
             }, receiveValue: { [weak self] points in
                 self?.logger.debug("Successfully fetched points: \(points).")
-                self?.pointsPublisher = points
+                self?.availablePointsPublisher = points
             })
     }
 
@@ -73,7 +73,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
     }
     
     var customerName: AnyPublisher<String, Never> { $customerNamePublisher.eraseToAnyPublisher() }
-    var points: AnyPublisher<UInt, Never> { $pointsPublisher.eraseToAnyPublisher() }
+    var points: AnyPublisher<UInt, Never> { $availablePointsPublisher.eraseToAnyPublisher() }
     var rewards: AnyPublisher<[RewardsAPI.RewardEntity], Never> { $rewardsPublisher.eraseToAnyPublisher() }
     var activeRewardIdentifiers: AnyPublisher<[String], Never> { $activeRewardIdentifiersPublisher.eraseToAnyPublisher() }
     var isLoading: AnyPublisher<Bool, Never> { $isLoadingPublisher.eraseToAnyPublisher() }
@@ -103,7 +103,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         } receiveValue: { [weak self] (rewards, points, customer, activeIDs) in
             self?.logger.info("Received data from fetchAllData. Updating publishers.")
             self?.rewardsPublisher = rewards
-            self?.pointsPublisher = points
+            self?.availablePointsPublisher = points
             self?.customerNamePublisher = customer.name
             self?.activeRewardIdentifiersPublisher = activeIDs
         }
