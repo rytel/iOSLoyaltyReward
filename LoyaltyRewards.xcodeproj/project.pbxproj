@@ -11,6 +11,8 @@
 		6C7D76E82E170F5800AFA963 /* UpdatingCardDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7D76E72E170F5800AFA963 /* UpdatingCardDecorator.swift */; };
 		6C7D76EA2E17234100AFA963 /* ErrorMessageFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7D76E92E17234100AFA963 /* ErrorMessageFactory.swift */; };
 		6C7D76EC2E1727CB00AFA963 /* DashboardViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7D76EB2E1727CB00AFA963 /* DashboardViewControllerDelegate.swift */; };
+		6C7D76F22E17C85B00AFA963 /* RewardsAPI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 968D6306286C7D4000BE5FEC /* RewardsAPI.xcframework */; };
+		6C7D76F32E17C85B00AFA963 /* RewardsAPI.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 968D6306286C7D4000BE5FEC /* RewardsAPI.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7BAE5D6B180E3BF18E135523 /* Pods_LoyaltyRewards.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24816E786277F309E917A07E /* Pods_LoyaltyRewards.framework */; };
 		8F684F922E5735319723F743 /* Pods_LoyaltyRewards_LoyaltyRewardsTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD2AF7B72E57B20108F2D95A /* Pods_LoyaltyRewards_LoyaltyRewardsTests.framework */; };
 		962F3FD627DB760400AAC3AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962F3FD527DB760400AAC3AD /* AppDelegate.swift */; };
@@ -56,7 +58,6 @@
 		965048BF27EE09B30030AFB1 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965048BE27EE09B30030AFB1 /* Button.swift */; };
 		965048C227EE0B760030AFB1 /* SpecialButtonDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965048C127EE0B760030AFB1 /* SpecialButtonDecorator.swift */; };
 		965048C527EE126C0030AFB1 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965048C427EE126C0030AFB1 /* CardView.swift */; };
-		968D6307286C7D4000BE5FEC /* RewardsAPI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 968D6306286C7D4000BE5FEC /* RewardsAPI.xcframework */; };
 		9690552127FB711C000F5DFC /* LockedButtonDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9690552027FB711C000F5DFC /* LockedButtonDecorator.swift */; };
 		9690552327FB7337000F5DFC /* UnlockedButtonDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9690552227FB7337000F5DFC /* UnlockedButtonDecorator.swift */; };
 		9690552627FC3FF9000F5DFC /* FontSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9690552527FC3FF9000F5DFC /* FontSize.swift */; };
@@ -87,6 +88,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6C7D76F32E17C85B00AFA963 /* RewardsAPI.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,7 +173,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BAE5D6B180E3BF18E135523 /* Pods_LoyaltyRewards.framework in Frameworks */,
-				968D6307286C7D4000BE5FEC /* RewardsAPI.xcframework in Frameworks */,
+				6C7D76F22E17C85B00AFA963 /* RewardsAPI.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

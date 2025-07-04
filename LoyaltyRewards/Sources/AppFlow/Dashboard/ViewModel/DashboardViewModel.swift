@@ -25,6 +25,8 @@ final class DashboardViewModel: DashboardViewModelProtocol {
     private let imageCache = NSCache<NSURL, UIImage>()
     private let logger = Logger(subsystem: "com.yourapp.RewardsApp", category: "DashboardViewModel")
 
+    private let networkRetryCount = 4
+
     init(api: RewardsAPI.API) {
         self.api = api
         logger.info("DashboardViewModel initialized. Fetching initial data...")
@@ -35,7 +37,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         logger.debug("Fetching active reward identifiers...")
         fetchIdentifiersCancellable?.cancel()
         fetchIdentifiersCancellable = api.getActiveRewardIdentifiers()
-            .retry(2)
+            .retry(networkRetryCount)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -52,7 +54,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         logger.debug("Fetching user points...")
         fetchPointsCancellable?.cancel()
         fetchPointsCancellable = api.loadAvailablePoints()
-            .retry(2)
+            .retry(networkRetryCount)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
@@ -84,10 +86,10 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         errorPublisher = nil
         
         Publishers.CombineLatest4(
-            api.loadRewards().retry(3),
-            api.loadAvailablePoints().retry(3),
-            api.loadCustomer().retry(3),
-            api.getActiveRewardIdentifiers().retry(3)
+            api.loadRewards().retry(networkRetryCount),
+            api.loadAvailablePoints().retry(networkRetryCount),
+            api.loadCustomer().retry(networkRetryCount),
+            api.getActiveRewardIdentifiers().retry(networkRetryCount)
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] completion in
@@ -135,7 +137,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         errorPublisher = nil
         
         api.activateReward(with: id)
-            .retry(2)
+            .retry(networkRetryCount)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.updatingRewardIDsPublisher.remove(id)
@@ -157,7 +159,7 @@ final class DashboardViewModel: DashboardViewModelProtocol {
         errorPublisher = nil
         
         api.deactivateReward(with: id)
-            .retry(2)
+            .retry(networkRetryCount)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.updatingRewardIDsPublisher.remove(id)
