@@ -20,6 +20,7 @@ final class DashboardViewController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private var imageLoadingCancellables = Set<AnyCancellable>()
     private var cardData: [CardCarouselView.CardData] = []
+    private var currentRewards: [RewardEntity] = []
     
     private let logger = Logger(subsystem: "com.rytel.LoyaltyRewards", category: "DashboardViewController")
 
@@ -58,6 +59,13 @@ final class DashboardViewController: UIViewController {
     
     private func setupDelegatesAndTargets() {
         dashboardView.cardCarousel.delegate = self
+        dashboardView.cardCarousel.imageLoader = { [weak self] imageURL in
+            guard let self = self,
+                  let reward = self.findReward(by: imageURL) else {
+                return Just(nil).eraseToAnyPublisher()
+            }
+            return self.viewModel.loadImage(for: reward)
+        }
         dashboardView.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
     }
 
@@ -113,6 +121,10 @@ final class DashboardViewController: UIViewController {
     }
     
     private func updateCarousel(with rewards: [RewardEntity], activeIDs: [String], userPoints: UInt, updatingIDs: Set<String>) {
+        // Store current rewards for image loading
+        self.currentRewards = rewards
+        
+        // Cancel any existing image loading operations
         imageLoadingCancellables.forEach { $0.cancel() }
         imageLoadingCancellables.removeAll()
 
@@ -128,23 +140,13 @@ final class DashboardViewController: UIViewController {
                 else { state = .locked }
             }
             let points = UInt(max(0, reward.pointsCost))
-            return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: points)
+            return .init(id: reward.id, title: reward.name, image: nil, state: state, pointsCost: points, imageURL: reward.coverURL)
         }
         dashboardView.cardCarousel.cards = cardData
-
-        for (index, reward) in rewards.enumerated() {
-            viewModel.loadImage(for: reward)
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] image in
-                    guard let self, self.cardData.indices.contains(index) else { return }
-                    if image != nil {
-                        self.logger.debug("Image loaded for reward: \(reward.name)")
-                    }
-                    self.cardData[index].image = image
-                    self.dashboardView.cardCarousel.cards = self.cardData
-                }
-                .store(in: &imageLoadingCancellables)
-        }
+    }
+    
+    private func findReward(by imageURL: String) -> RewardEntity? {
+        return currentRewards.first { $0.coverURL == imageURL }
     }
 }
 
