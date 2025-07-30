@@ -5,7 +5,7 @@
 struct CardViewFactory {
     func make(for cardState: CardState) -> CardView {
         let view = CardView()
-
+        
         switch cardState {
         case .active:
             ActiveCardDecorator.decorate(view)
@@ -16,8 +16,11 @@ struct CardViewFactory {
         case .unlocked:
             UnlockedCardDecorator.decorate(view)
             view.button.isEnabled = true
+        case .updating:
+            UpdatingCardDecorator.decorate(view)
+            view.button.isEnabled = false
         }
-
+        
         return view
     }
 }
