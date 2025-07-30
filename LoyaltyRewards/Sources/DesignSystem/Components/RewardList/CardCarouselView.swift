@@ -3,6 +3,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol CardCarouselViewDelegate: AnyObject {
     func cardCarouselView(_ carouselView: CardCarouselView, didTapButtonInCardWith data: CardCarouselView.CardData)
@@ -15,6 +16,7 @@ final class CardCarouselView: UIView {
         var image: UIImage?
         let state: CardState
         let pointsCost: UInt
+        let imageURL: String
     }
 
     private enum Constants {
@@ -34,6 +36,7 @@ final class CardCarouselView: UIView {
     }
     
     weak var delegate: CardCarouselViewDelegate?
+    var imageLoader: ((String) -> AnyPublisher<UIImage?, Never>)?
 
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -94,6 +97,7 @@ extension CardCarouselView: UICollectionViewDataSource {
         }
         
         let cardData = cards[indexPath.item]
+        cell.imageLoader = imageLoader
         cell.configure(with: cardData)
         
         cell.onButtonTapped = { [weak self] in
