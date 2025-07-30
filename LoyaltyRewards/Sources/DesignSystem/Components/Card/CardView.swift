@@ -11,7 +11,7 @@ final class CardView: UIView {
     }
 
     private let mainStackView = UIStackView()
-    private let imageView = UIImageView()
+    let imageView = UIImageView()
     private let imageOverlayView = UIView()
     private let titleLabel = UILabel()
 

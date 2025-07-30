@@ -11,6 +11,7 @@ final class DashboardView: UIView {
     let backgroundGradientView = GradientView()
     let sectionTitle = SectionTitleView()
     let counterLoop = CounterLoop()
+    let cardCarousel = CardCarouselView()
     let bannerCode = BannerCodeView()
     let refreshControl = UIRefreshControl()
 
@@ -20,34 +21,34 @@ final class DashboardView: UIView {
 
     init() {
         super.init(frame: .zero)
-
         setupLayout()
     }
 }
 
-extension DashboardView {
-    private func setupLayout() {
+private extension DashboardView {
+    func setupLayout() {
         constructHierarchy()
-
         prepareBackgroundGradientView()
         prepareScrollView()
         prepareMainStackView()
         prepareSectionTitle()
         prepareCounterLoop()
         prepareBannerCode()
+        prepareCardCarousel()
     }
 
-    private func constructHierarchy() {
+    func constructHierarchy() {
         addSubview(backgroundGradientView)
         addSubview(scrollView)
         scrollView.addSubview(mainStackView)
 
         mainStackView.addArrangedSubview(sectionTitle)
         mainStackView.addArrangedSubview(counterLoop)
+        mainStackView.addArrangedSubview(cardCarousel)
         mainStackView.addArrangedSubview(bannerCode)
     }
 
-    private func prepareBackgroundGradientView() {
+    func prepareBackgroundGradientView() {
         backgroundGradientView.gradientDirection = .topToBottom
         backgroundGradientView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -59,7 +60,7 @@ extension DashboardView {
         ])
     }
 
-    private func prepareScrollView() {
+    func prepareScrollView() {
         scrollView.refreshControl = refreshControl
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -71,7 +72,7 @@ extension DashboardView {
         ])
     }
 
-    private func prepareMainStackView() {
+    func prepareMainStackView() {
         mainStackView.axis = .vertical
         mainStackView.spacing = Margin.default
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -85,15 +86,19 @@ extension DashboardView {
         ])
     }
 
-    private func prepareSectionTitle() {
+    func prepareSectionTitle() {
         sectionTitle.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    private func prepareCounterLoop() {
+    func prepareCounterLoop() {
         counterLoop.translatesAutoresizingMaskIntoConstraints = false
     }
 
-    private func prepareBannerCode() {
-        counterLoop.translatesAutoresizingMaskIntoConstraints = false
+    func prepareCardCarousel() {
+        cardCarousel.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    func prepareBannerCode() {
+        bannerCode.translatesAutoresizingMaskIntoConstraints = false
     }
 }
